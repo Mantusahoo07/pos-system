@@ -26,6 +26,14 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
     
+    - name: Fix gradle.properties
+      working-directory: ./client/android
+      run: |
+        # Remove any local Java path from gradle.properties
+        sed -i '/org.gradle.java.home/d' gradle.properties 2>/dev/null || true
+        echo "android.useAndroidX=true" >> gradle.properties
+        echo "android.enableJetifier=true" >> gradle.properties
+    
     - name: Install Dependencies
       working-directory: ./client
       run: npm install
@@ -42,7 +50,7 @@ jobs:
       working-directory: ./client/android
       run: |
         chmod +x gradlew
-        ./gradlew assembleDebug
+        ./gradlew assembleDebug --no-daemon
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
