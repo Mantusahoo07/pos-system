@@ -10,13 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
     
     - name: Setup Java
       uses: actions/setup-java@v4
@@ -27,19 +26,17 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
     
-    - name: Install dependencies
+    - name: Install Dependencies
       working-directory: ./client
-      run: npm ci
+      run: npm install
     
-    - name: Build React app
+    - name: Build React App
       working-directory: ./client
       run: npm run build
     
-    - name: Setup Capacitor
+    - name: Capacitor Sync
       working-directory: ./client
-      run: |
-        npx cap sync android
-        npx cap copy android
+      run: npx cap sync android
     
     - name: Build APK
       working-directory: ./client/android
@@ -50,5 +47,5 @@ jobs:
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: POS-System-APK
+        name: POS-APK
         path: client/android/app/build/outputs/apk/debug/app-debug.apk
