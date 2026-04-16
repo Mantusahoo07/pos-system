@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- Android Splash Screen -->
+    <meta name="theme-color" content="#573CFA" />
+    <meta name="msapplication-navbutton-color" content="#573CFA" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="%PUBLIC_URL%/android-chrome-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="%PUBLIC_URL%/android-chrome-512x512.png" />
+    
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <meta name="theme-color" content="#573CFA" />
+    <meta name="description" content="POS System with Kitchen Display" />
+    <title>POS System</title>
+    <style>
+      * {
+        touch-action: manipulation;
+      }
+      body {
+        touch-action: pan-x pan-y;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => {
+              console.log('✅ Service Worker registered:', reg.scope);
+              
+              // Check for existing push subscription
+              reg.pushManager.getSubscription().then(sub => {
+                console.log('📢 Existing push subscription:', sub ? 'Yes' : 'No');
+              });
+            })
+            .catch(err => console.log('❌ Service Worker registration failed:', err));
+        });
+      } else {
+        console.log('❌ Service Worker not supported');
+      }
+    </script>
+  </body>
+</html>

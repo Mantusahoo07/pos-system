@@ -1,0 +1,47 @@
+{
+  "name": "pos-kitchen-system",
+  "version": "1.0.0",
+  "description": "Complete POS System with Kitchen Display",
+  "main": "server/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "nodemon server/index.js",
+    "client:dev": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "node server/index.js",
+    "test": "npm run test:server && npm run test:client",
+    "test:server": "mocha tests/server/**/*.test.js --exit",
+    "test:client": "cd client && npm test",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "seed": "node scripts/seedDatabase.js",
+    "backup": "node scripts/backupDatabase.js"
+  },
+  "keywords": ["pos", "kitchen", "react", "nodejs", "socketio"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1",
+    "mongoose": "^7.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "uuid": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "express-rate-limit": "^6.7.0",
+    "helmet": "^7.0.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1",
+    "nodemon": "^2.0.22",
+    "mocha": "^10.2.0",
+    "chai": "^4.3.7",
+    "supertest": "^6.3.3",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^5.16.5",
+    "vitest": "^0.30.1"
+  }
+}

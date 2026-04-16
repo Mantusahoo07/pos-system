@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: pos-server
+    runtime: node
+    repo: https://github.com/yourusername/pos-kitchen-system
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        value: mongodb+srv://pos:posd98@pos.8iiiieg.mongodb.net/pos-system?retryWrites=true&w=majority
+      - key: JWT_SECRET
+        generateValue: true
+      - key: RAZORPAY_KEY_ID
+        value: rzp_live_RlSrpAntWBQZ7c
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: CLIENT_URL
+        value: https://your-frontend-url.com
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+
+  - type: web
+    name: pos-client
+    runtime: static
+    repo: https://github.com/yourusername/pos-kitchen-system
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://server-uvyi.onrender.com/api
+      - key: VITE_SOCKET_URL
+        value: https://server-uvyi.onrender.com
+      - key: VITE_RAZORPAY_KEY_ID
+        value: rzp_live_RlSrpAntWBQZ7c
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
