@@ -1,13 +1,40 @@
 import { useState, useEffect } from 'react';
-import Z91Printer from '../plugins/Z91Printer';
+import { Plugins } from '@capacitor/core';
+
+// Define printer interface
+interface Z91PrinterPlugin {
+  init(options?: { address?: string }): Promise<{ success: boolean; message?: string }>;
+  printText(options: { text: string; align?: string; bold?: boolean }): Promise<{ success: boolean }>;
+  getStatus(): Promise<{ connected: boolean }>;
+  cutPaper(): Promise<{ success: boolean }>;
+  openDrawer(): Promise<{ success: boolean }>;
+}
+
+// Mock for web development
+const isCapacitor = () => !!(window as any).Capacitor;
 
 export const useZ91Printer = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [plugin, setPlugin] = useState<Z91PrinterPlugin | null>(null);
+
+  useEffect(() => {
+    if (isCapacitor()) {
+      import('../plugins/Z91Printer').then(module => {
+        setPlugin(module.default);
+      });
+    }
+  }, []);
 
   const connect = async (address?: string) => {
+    if (!plugin) {
+      console.log('Web mode - printer simulation');
+      setIsConnected(true);
+      return true;
+    }
+    
     try {
-      const result = await Z91Printer.init({ address });
+      const result = await plugin.init({ address });
       setIsConnected(result.success);
       return result.success;
     } catch (error) {
@@ -16,10 +43,16 @@ export const useZ91Printer = () => {
     }
   };
 
-  const printText = async (text: string, options?: { align?: 'left' | 'center' | 'right'; bold?: boolean }) => {
+  const printText = async (text: string, options?: { align?: string; bold?: boolean }) => {
+    if (!plugin) {
+      console.log('Web mode - simulated print:', text);
+      alert('Print simulation: ' + text.substring(0, 50));
+      return true;
+    }
+    
     try {
       setIsPrinting(true);
-      await Z91Printer.printText({ text, ...options });
+      await plugin.printText({ text, ...options });
       return true;
     } catch (error) {
       console.error('Print error:', error);
@@ -29,56 +62,13 @@ export const useZ91Printer = () => {
     }
   };
 
-  const printReceipt = async (receiptData: {
-    businessName: string;
-    orderNumber: string;
-    items: Array<{ name: string; quantity: number; price: number }>;
-    subtotal: number;
-    tax: number;
-    total: number;
-    paymentMethod: string;
-    date: string;
-    footer?: string;
-  }) => {
-    try {
-      setIsPrinting(true);
-      const result = await Z91Printer.printReceipt(receiptData);
-      return result.success;
-    } catch (error) {
-      console.error('Receipt print error:', error);
-      return false;
-    } finally {
-      setIsPrinting(false);
-    }
-  };
-
-  const cutPaper = async () => {
-    try {
-      await Z91Printer.cutPaper();
-      return true;
-    } catch (error) {
-      console.error('Cut paper error:', error);
-      return false;
-    }
-  };
-
-  const openDrawer = async () => {
-    try {
-      await Z91Printer.openDrawer();
-      return true;
-    } catch (error) {
-      console.error('Open drawer error:', error);
-      return false;
-    }
-  };
-
   const getStatus = async () => {
+    if (!plugin) {
+      return { connected: true };
+    }
     try {
-      const status = await Z91Printer.getStatus();
-      setIsConnected(status.connected);
-      return status;
+      return await plugin.getStatus();
     } catch (error) {
-      console.error('Status check error:', error);
       return { connected: false };
     }
   };
@@ -88,9 +78,6 @@ export const useZ91Printer = () => {
     isPrinting,
     connect,
     printText,
-    printReceipt,
-    cutPaper,
-    openDrawer,
     getStatus
   };
 };

@@ -10,15 +10,17 @@
   "android": {
     "allowMixedContent": true,
     "captureInput": true,
-    "webContentsDebuggingEnabled": false
+    "webContentsDebuggingEnabled": false,
+    "windowSoftInputMode": "adjustResize"
   },
   "plugins": {
     "PushNotifications": {
-      "presentationOptions": [
-        "badge",
-        "sound",
-        "alert"
-      ]
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "StatusBar": {
+      "style": "dark",
+      "backgroundColor": "#1C1A27",
+      "overlaysWebView": false
     }
   }
 }
