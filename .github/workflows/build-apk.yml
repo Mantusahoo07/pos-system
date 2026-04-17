@@ -47,16 +47,13 @@ jobs:
     - name: Setup Capacitor
       working-directory: ./client
       run: |
-        # Create capacitor config if missing
         if [ ! -f capacitor.config.json ]; then
-          cat > capacitor.config.json << 'CONFIG'
-{
-  "appId": "com.pos.app",
-  "appName": "POS System",
-  "webDir": "build",
-  "bundledWebRuntime": false
-}
-CONFIG
+          echo '{
+            "appId": "com.pos.app",
+            "appName": "POS System",
+            "webDir": "build",
+            "bundledWebRuntime": false
+          }' > capacitor.config.json
         fi
         npx cap sync android
         npx cap copy android
@@ -64,28 +61,26 @@ CONFIG
     - name: Fix Android files
       working-directory: ./client/android
       run: |
-        # Create missing directories
         mkdir -p app/src/main/res/values
         mkdir -p app/src/main/res/xml
         
-        # Create basic resources if missing
         if [ ! -f app/src/main/res/values/strings.xml ]; then
-          cat > app/src/main/res/values/strings.xml << 'XML'
+          cat > app/src/main/res/values/strings.xml << 'XMLEND'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">POS System</string>
 </resources>
-XML
+XMLEND
         fi
         
         if [ ! -f app/src/main/res/values/colors.xml ]; then
-          cat > app/src/main/res/values/colors.xml << 'XML'
+          cat > app/src/main/res/values/colors.xml << 'XMLEND'
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="purple_500">#573CFA</color>
     <color name="purple_700">#3D26D6</color>
 </resources>
-XML
+XMLEND
         fi
     
     - name: Build APK
