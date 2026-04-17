@@ -25,7 +25,7 @@ public class Z91PrinterPlugin extends Plugin {
     private int printerPort = 9100;
     private boolean isConnected = false;
     
-    // ESC/POS Commands
+    // ESC/POS Commands - Fixed byte casting
     private static final byte[] ESC_INIT = new byte[]{0x1B, 0x40};
     private static final byte[] ESC_ALIGN_LEFT = new byte[]{0x1B, 0x61, 0x00};
     private static final byte[] ESC_ALIGN_CENTER = new byte[]{0x1B, 0x61, 0x01};
@@ -35,7 +35,8 @@ public class Z91PrinterPlugin extends Plugin {
     private static final byte[] ESC_FONT_LARGE = new byte[]{0x1D, 0x21, 0x11};
     private static final byte[] ESC_FONT_NORMAL = new byte[]{0x1D, 0x21, 0x00};
     private static final byte[] ESC_FULL_CUT = new byte[]{0x1D, 0x56, 0x00};
-    private static final byte[] ESC_OPEN_DRAWER = new byte[]{0x1B, 0x70, 0x00, 0x19, 0xFA};
+    // Fixed: Cast ints to byte
+    private static final byte[] ESC_OPEN_DRAWER = new byte[]{(byte)0x1B, (byte)0x70, 0x00, 0x19, (byte)0xFA};
     private static final byte[] ESC_LINE_FEED = new byte[]{0x0A};
     
     @PluginMethod
@@ -82,7 +83,6 @@ public class Z91PrinterPlugin extends Plugin {
             String align = call.getString("align", "left");
             boolean bold = call.getBoolean("bold", false);
             
-            // Set alignment
             switch (align) {
                 case "center":
                     writeBytes(ESC_ALIGN_CENTER);
@@ -112,15 +112,11 @@ public class Z91PrinterPlugin extends Plugin {
             String data = call.getString("data", "");
             int size = call.getInt("size", 8);
             
-            // QR code size
-            writeBytes(new byte[]{0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, (byte) size});
+            writeBytes(new byte[]{0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x51, (byte)size});
             
-            // QR data
             int dataLen = data.length();
             writeBytes(new byte[]{0x1D, 0x28, 0x6B, (byte)(dataLen + 3), 0x00, 0x31, 0x50, 0x30});
             writeBytes(data.getBytes(StandardCharsets.UTF_8));
-            
-            // Print QR
             writeBytes(new byte[]{0x1D, 0x28, 0x6B, 0x03, 0x00, 0x31, 0x52, 0x30});
             
             call.resolve(new JSObject().put("success", true));
@@ -161,31 +157,25 @@ public class Z91PrinterPlugin extends Plugin {
         try {
             writeBytes(ESC_INIT);
             
-            // Business name
             String businessName = call.getString("businessName", "RESTAURANT");
             writeBytes(ESC_ALIGN_CENTER);
             writeBytes(ESC_FONT_LARGE);
             writeBytes(businessName.getBytes(StandardCharsets.UTF_8));
             writeBytes(ESC_LINE_FEED);
             writeBytes(ESC_FONT_NORMAL);
-            
-            // Separator
             writeBytes("--------------------------------".getBytes());
             writeBytes(ESC_LINE_FEED);
             
-            // Order number
             String orderNumber = call.getString("orderNumber", "");
             writeBytes(ESC_ALIGN_LEFT);
             writeBytes(("Order #: " + orderNumber).getBytes());
             writeBytes(ESC_LINE_FEED);
             
-            // Date
             String date = call.getString("date", "");
             writeBytes(("Date: " + date).getBytes());
             writeBytes(ESC_LINE_FEED);
             writeBytes(ESC_LINE_FEED);
             
-            // Items header
             writeBytes(ESC_BOLD_ON);
             writeBytes("ITEM          QTY   PRICE   TOTAL".getBytes());
             writeBytes(ESC_LINE_FEED);
@@ -193,21 +183,17 @@ public class Z91PrinterPlugin extends Plugin {
             writeBytes("--------------------------------".getBytes());
             writeBytes(ESC_LINE_FEED);
             
-            // Total
-            double total = call.getDouble("total", 0);
+            double total = call.getDouble("total", 0.0);
             writeBytes(ESC_BOLD_ON);
             writeBytes(("TOTAL: ₹" + String.format("%.2f", total)).getBytes());
             writeBytes(ESC_LINE_FEED);
             writeBytes(ESC_BOLD_OFF);
             
-            // Footer
             String footer = call.getString("footer", "Thank you!");
             writeBytes(ESC_ALIGN_CENTER);
             writeBytes(footer.getBytes());
             writeBytes(ESC_LINE_FEED);
             writeBytes(ESC_LINE_FEED);
-            
-            // Cut paper
             writeBytes(ESC_FULL_CUT);
             
             call.resolve(new JSObject().put("success", true));
